@@ -1,0 +1,7 @@
+*.env
+*.json
+*.log
+*__pycache__/
+
+test.py
+drafts/
