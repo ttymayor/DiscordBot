@@ -1,6 +1,7 @@
 from discord.ext import commands, tasks
 from logging.handlers import RotatingFileHandler
 from datetime import datetime, timedelta, timezone
+from discord import app_commands
 import asyncio
 import discord
 import json
@@ -177,6 +178,11 @@ class EarthquakeReport(commands.Cog):
     # Set up eq report channel
     @app_commands.command(name="設置地震報告頻道", description="設置地震報告頻道")
     async def set_eq_channel(self, interaction: discord.Interaction, channel: discord.TextChannel):
+        # 僅有能管理頻道的人員可以設定
+        if not interaction.user.guild_permissions.manage_channels:
+            await interaction.response.send_message("你沒有權限設定地震報告頻道", ephemeral=True)
+            return
+
         self.eq_channel_id = channel.id
         # Save to config
         with open("config.json", "w") as jfile:
@@ -184,10 +190,10 @@ class EarthquakeReport(commands.Cog):
             json.dump(jdata, jfile, indent=2, ensure_ascii=False)
         await interaction.response.send_message(f"地震報告頻道已設定為 {channel.mention}")
 
-    # Commands for testing
-    @commands.command(name="test_eq_report")
-    async def test_eq_report(self, ctx):
-        await ctx.send(embed=self.make_embed(), content="以下是測試地震報告")
+    # For testing
+    @app_commands.command(name="測試地震報告", description="測試地震報告")
+    async def test_eq_report(self, interaction: discord.Interaction):
+        await interaction.response.send_message(embed=self.make_embed(), content="以下是測試地震報告")
 
     @tasks.loop(minutes=1)
     async def earthquake_warning(self):
