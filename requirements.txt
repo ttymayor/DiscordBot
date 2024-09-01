@@ -1,2 +1,4 @@
 discord.py
 requests
+PyNaCl
+yt_dlp
