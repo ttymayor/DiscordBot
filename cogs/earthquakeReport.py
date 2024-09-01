@@ -193,6 +193,9 @@ class EarthquakeReport(commands.Cog):
     # For testing
     @app_commands.command(name="測試地震報告", description="測試地震報告")
     async def test_eq_report(self, interaction: discord.Interaction):
+        if self.eq_channel_id is None:
+            await interaction.response.send_message("請先設定地震報告頻道", ephemeral=True)
+            return
         await interaction.response.send_message(embed=self.make_embed(), content="以下是測試地震報告")
 
     @tasks.loop(minutes=1)
@@ -241,6 +244,9 @@ class EarthquakeReport(commands.Cog):
 
     @earthquake_warning.before_loop
     async def before_earthquake_warning(self):
+        if jdata["guilds"]["eqReportChannelID"] is None:
+            logger.error("No earthquake report channel set. Exiting...")
+            return
         logger.info("Waiting for bot to be ready...")
         await self.bot.wait_until_ready()
         logger.info("Bot is ready. Starting earthquake warning loop...")
