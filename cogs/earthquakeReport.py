@@ -193,9 +193,6 @@ class EarthquakeReport(commands.Cog):
     # For testing
     @app_commands.command(name="測試地震報告", description="測試地震報告")
     async def test_eq_report(self, interaction: discord.Interaction):
-        if self.eq_channel_id is None:
-            await interaction.response.send_message("請先設定地震報告頻道", ephemeral=True)
-            return
         await interaction.response.send_message(embed=self.make_embed(), content="以下是測試地震報告")
 
     @tasks.loop(minutes=1)
@@ -220,7 +217,7 @@ class EarthquakeReport(commands.Cog):
         try:
             eq_identifier = f"{self.eq_No}_{self.eq_Time}"
             if self.last_eq_No_Time == eq_identifier:
-                logger.info("No new earthquake data")
+                # logger.info("No new earthquake data")
                 return
         except KeyError as e:
             logger.error(f"Error processing earthquake data: missing key {e}")
@@ -236,7 +233,7 @@ class EarthquakeReport(commands.Cog):
                 await channel.send(embed=embed, content=f"<@&{self.eq_report_role_id}>")
             else:
                 await channel.send(embed=embed)
-            logger.info("Sent earthquake report")
+            logger.info("Get and sent earthquake report!")
             self.last_eq_No_Time = self.record_message(eq_identifier)
 
         except KeyError as e:
@@ -246,6 +243,7 @@ class EarthquakeReport(commands.Cog):
     async def before_earthquake_warning(self):
         if jdata["guilds"]["eqReportChannelID"] is None:
             logger.error("No earthquake report channel set. Exiting...")
+            print("未配置地震報告的頻道，請配置後再重新啟動機器人")
             return
         logger.info("Waiting for bot to be ready...")
         await self.bot.wait_until_ready()
@@ -254,6 +252,8 @@ class EarthquakeReport(commands.Cog):
     @earthquake_warning.after_loop
     async def after_earthquake_warning(self):
         logger.info("Earthquake warning loop has stopped")
+        await asyncio.sleep(60)
+        self.earthquake_warning.start()
 
 
 async def setup(bot: commands.Bot):
