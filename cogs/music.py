@@ -36,7 +36,7 @@ class Music(commands.Cog):
         # 創建新的計時器
         self.timer_task = asyncio.create_task(self.leave_after_delay(interaction))
 
-    def reset_timer(self, interaction):
+    def reset_timer(self):
         if self.timer_task:
             self.timer_task.cancel()
             self.timer_task = None
