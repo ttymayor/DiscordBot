@@ -2,6 +2,10 @@
 
 My Discord Bot built on Python.
 
+> [!CAUTION]
+> 目前音樂機器人在 Python `3.13.1` 之後不適用。
+> Currently the music robot does not work with Python `3.13.1` and later.
+
 ## 運行版本
 
 Python `3.13.1`
