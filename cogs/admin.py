@@ -11,11 +11,6 @@ admin = int(jdata["roles"]["adminID"])
 
 
 class Admin(Cog_Extension):
-    # ping
-    @app_commands.command(name="ping")
-    async def ping(self, interaction: discord.Interaction):
-        await interaction.response.send_message(f"{round(self.bot.latency * 1000)}ms")
-
     # bot say
     @commands.command()
     @commands.has_role(admin)
