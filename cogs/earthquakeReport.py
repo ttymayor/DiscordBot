@@ -1,7 +1,8 @@
 from discord.ext import commands, tasks
+from utils.eq_report_util import time_to_stamp, str_to_time, intensity_to_color
 from logging.handlers import RotatingFileHandler
-from datetime import datetime, timedelta, timezone
 from discord import app_commands
+import time
 import asyncio
 import discord
 import json
@@ -24,34 +25,6 @@ logger = logging.getLogger("earthquake_report")
 logger.setLevel(logging.INFO)
 logger.addHandler(file_handler)
 
-
-def str_to_time(time_str):
-    return datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S")
-
-def intensity_to_color(intensity, suffix):
-    if intensity == 1:
-        return 0xe0ffe0
-    elif intensity == 2:
-        return 0x33ff34
-    elif intensity == 3:
-        return 0xfffe2f
-    elif intensity == 4:
-        return 0xfe842e
-    elif intensity == 5 and suffix == "弱":
-        return 0xfe5231
-    elif intensity == 5 and suffix == "強":
-        return 0xc43c3c
-    elif intensity == 6 and suffix == "弱":
-        return 0x9a4644
-    elif intensity == 6 and suffix == "強":
-        return 0x9a4c86
-    elif intensity == 7:
-        return 0xb61eeb
-
-def time_to_stamp(time_str):
-    tz = timezone(timedelta(hours=8))
-    return datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S").replace(tzinfo=tz).timestamp()
-
 class EarthquakeReport(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -64,6 +37,21 @@ class EarthquakeReport(commands.Cog):
         self.retry_delay = 5  # 秒
 
         self.last_eq_No_Time = self._load_last_message()
+        self.eq_data = self.get_eq_data()
+
+        # Initialize earthquake data
+        self.eq_No = str(self.eq_data["records"]["Earthquake"][0]["EarthquakeNo"])
+        self.eq_Time = str(self.eq_data["records"]["Earthquake"][0]["EarthquakeInfo"]["OriginTime"])
+        self.eq_Timestamp = time_to_stamp(self.eq_Time)  # float
+        self.eq_MaxIntensity, self.eq_MaxIntensity_suffix = self.get_max_intensity()  # int, str
+        self.eq_Intensity_color = intensity_to_color(self.eq_MaxIntensity, self.eq_MaxIntensity_suffix)
+        self.eq_ReportImage = self.eq_data["records"]["Earthquake"][0]["ReportImageURI"]
+        self.eq_Web = self.eq_data["records"]["Earthquake"][0]["Web"]
+        self.eq_Source = self.eq_data["records"]["Earthquake"][0]["EarthquakeInfo"]["Source"]
+        self.eq_Epicenter = self.eq_data["records"]["Earthquake"][0]["EarthquakeInfo"]["Epicenter"]["Location"]
+        self.eq_Mag = self.eq_data["records"]["Earthquake"][0]["EarthquakeInfo"]["EarthquakeMagnitude"]["MagnitudeValue"]
+
+    def update_data(self):
         self.eq_data = self.get_eq_data()
 
         # Initialize earthquake data
@@ -124,7 +112,6 @@ class EarthquakeReport(commands.Cog):
             embed.add_field(name="震央", value=f"{self.eq_Epicenter}", inline=False)
             embed.add_field(name="芮氏規模", value=f"{self.eq_Mag}", inline=True)
             embed.add_field(name="最大震度", value=f"{self.eq_MaxIntensity} {self.eq_MaxIntensity_suffix}", inline=True)
-
             return embed
         except KeyError as e:
             logger.error(f"Error processing earthquake data: missing key {e}")
@@ -200,18 +187,7 @@ class EarthquakeReport(commands.Cog):
         channel = self.bot.get_channel(self.eq_channel_id)
 
         # Update earthquake data
-        self.eq_data = self.get_eq_data()
-
-        self.eq_No = str(self.eq_data["records"]["Earthquake"][0]["EarthquakeNo"])
-        self.eq_Time = str(self.eq_data["records"]["Earthquake"][0]["EarthquakeInfo"]["OriginTime"])
-        self.eq_Timestamp = time_to_stamp(self.eq_Time)  # float
-        self.eq_MaxIntensity, self.eq_MaxIntensity_suffix = self.get_max_intensity()  # int, str
-        self.eq_Intensity_color = intensity_to_color(self.eq_MaxIntensity, self.eq_MaxIntensity_suffix)
-        self.eq_ReportImage = self.eq_data["records"]["Earthquake"][0]["ReportImageURI"]
-        self.eq_Web = self.eq_data["records"]["Earthquake"][0]["Web"]
-        self.eq_Source = self.eq_data["records"]["Earthquake"][0]["EarthquakeInfo"]["Source"]
-        self.eq_Epicenter = self.eq_data["records"]["Earthquake"][0]["EarthquakeInfo"]["Epicenter"]["Location"]
-        self.eq_Mag = self.eq_data["records"]["Earthquake"][0]["EarthquakeInfo"]["EarthquakeMagnitude"]["MagnitudeValue"]
+        self.update_data()
 
         # Check if new earthquake data
         try:
@@ -247,13 +223,17 @@ class EarthquakeReport(commands.Cog):
             return
         logger.info("Waiting for bot to be ready...")
         await self.bot.wait_until_ready()
+        own = await self.bot.fetch_user(753581988828545034)
+        await own.send("地震報告模組已啟動")
         logger.info("Bot is ready. Starting earthquake warning loop...")
 
     @earthquake_warning.after_loop
     async def after_earthquake_warning(self):
         logger.info("Earthquake warning loop has stopped")
+        own = await self.bot.fetch_user(753581988828545034)
+        await own.send("地震報告模組已停止，正在嘗試 60 秒後重新啟動")
         await asyncio.sleep(60)
-        self.earthquake_warning.start()
+        self.earthquake_warning.restart()
 
 
 async def setup(bot: commands.Bot):

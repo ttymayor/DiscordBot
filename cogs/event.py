@@ -1,5 +1,6 @@
 from core.classes import Cog_Extension
 from discord.ext import commands
+import random as rd
 import datetime
 import discord
 import json
@@ -9,6 +10,9 @@ with open("config.json", "r", encoding="utf8") as jfile:
 
 # 冷卻時間紀錄
 last_used = {}
+
+# gg/ff... 訊息 list
+gg_list = ["gg", "go next", "noob", "ez", "──────▄▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▌\n───▄▄██▌█ BEEP BEEP\n▄▄▄▌▐██▌█ -22 RR DELIVERY\n███████▌█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▌\n▀(⊙)▀▀▀▀▀▀▀▀▀▀▀▀▀▀(⊙)(⊙)▀▀"]
 
 
 class Event(Cog_Extension):
@@ -38,8 +42,15 @@ class Event(Cog_Extension):
             and before.channel.members == []
             and before.channel.name.endswith("的頻道")
         ):
+            # 如果 after channel 是動態語音頻道，則拉回成員
+            if after.channel and after.channel.id == int(jdata["guilds"]["dynamicChannelID"]):
+                await member.move_to(before.channel)
+                print(f"Moved {member} back to their own channel: {before.channel.name}")
+                return
+
             await before.channel.delete()
             print(f"Deleted empty custom channel: {before.channel.name}")
+            return
 
         # 檢查是否加入了設定的動態語音頻道
         if after.channel and after.channel.id == int(
@@ -53,9 +64,8 @@ class Event(Cog_Extension):
             )
             # 將使用者移動到新創建的語音頻道
             await member.move_to(new_channel)
-            print(
-                f"Created and moved {member} to their own channel: {new_channel.name}"
-            )
+            print(f"Created and moved {member} to their own channel: {new_channel.name}")
+            return
 
         if before.channel is None and after.channel is not None:
             print(f"{member} join {after.channel}")
@@ -85,32 +95,38 @@ class Event(Cog_Extension):
         time_since_last_message = now - last_used[user_id]
 
         # 如果時間差小於 15 秒，則回覆訊息
-        if time_since_last_message < datetime.timedelta(seconds=10):
+        if time_since_last_message < datetime.timedelta(seconds=5):
             await msg.channel.send("請過", ephemeral=True)
             return
         else:
             last_used[user_id] = now
 
         # 訊息偵測
-        if msg.content == "qq" or msg.content == "QQ":
-            await msg.channel.send("幫 QQ")
-        if msg.content == "tt" or msg.content == "TT":
-            await msg.channel.send("幫 TT")
-        if (
-            msg.content == "ff"
-            or msg.content == "FF"
-            or msg.content == "gg"
-            or msg.content == "GG"
-        ):
-            await msg.channel.send("gg")
-            await msg.channel.send("go next")
-            await msg.channel.send("noob")
-            await msg.channel.send("ez")
-            await msg.channel.send("gg")
-            await msg.channel.send(
-                "──────▄▌▐▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▌\n───▄▄██▌█ BEEP BEEP\n▄▄▄▌▐██▌█ -22 RR DELIVERY\n███████▌█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▌\n▀(⊙)▀▀▀▀▀▀▀▀▀▀▀▀▀▀(⊙)(⊙)▀▀"
-            )
+        ## 如果不是連結
+        if "http" not in msg.content:
+            # 訊息轉小寫
+            message = msg.content.lower()
+            # 如果訊息長度大於 10
+            if msg.content.startswith("<:"):
+                if "wa3" in msg.content:
+                    await msg.channel.send("<:wa3:1266342747313274891>")
+            elif message == "?" or message == "？":
+                await msg.channel.send(message)
+            elif message == "6":
+                await msg.channel.send("6")
+            elif message == "qq":
+                await msg.channel.send("幫 QQ")
+            elif message == "tt":
+                await msg.channel.send("幫 TT")
+            elif message == "nt":
+                await msg.channel.send(rd.choice(["nice try", "奶頭"]))
+            elif message == "ff" or message == "gg" or message == "ez" or message == "noob" or message == "go next":
+                # 機率回覆 50%
+                for i in range(rd.randint(1, 3)):
+                    await msg.channel.send(rd.choice(gg_list))
 
+        if self.bot.user.mentioned_in(msg):
+            await msg.channel.send("標三小啦，耖")
 
 async def setup(bot):
     await bot.add_cog(Event(bot))

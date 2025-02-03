@@ -3,6 +3,11 @@ from discord import app_commands
 from discord.ext import commands
 import discord
 import random as rd
+import json
+
+
+with open("config.json", "r", encoding="utf8") as jfile:
+    jdata = json.load(jfile)
 
 
 class slashCommands(Cog_Extension):
@@ -20,8 +25,8 @@ class slashCommands(Cog_Extension):
         )
 
     # kick user
-    @discord.app_commands.command(name="kick", description="Kick a member")
-    @discord.app_commands.describe(member="The member to kick")
+    @app_commands.command(name="kick", description="Kick a member")
+    @app_commands.describe(member="The member to kick")
     async def kick(
         self,
         interaction: discord.Interaction,
@@ -47,8 +52,8 @@ class slashCommands(Cog_Extension):
         await interaction.response.send_message(f"已經踢出 {member.mention}。")
 
     # ban user
-    @discord.app_commands.command(name="ban", description="Ban a member")
-    @discord.app_commands.describe(member="The member to ban")
+    @app_commands.command(name="ban", description="Ban a member")
+    @app_commands.describe(member="The member to ban")
     async def ban(
         self,
         interaction: discord.Interaction,
@@ -72,6 +77,14 @@ class slashCommands(Cog_Extension):
         # 封鎖成員
         await member.ban(reason=reason)
         await interaction.response.send_message(f"已經封鎖 {member.mention}。")
+
+    @app_commands.command(name="特戰隨機地圖", description="特戰隨機地圖")
+    async def random_valorant_map(self, interaction: discord.Interaction):
+        await interaction.response.send_message("抽到的地圖是：" + rd.choice(jdata["valorants"]["maps"]))
+
+    @app_commands.command(name="特戰隨機角色", description="特戰隨機角色")
+    async def random_valorant_agent(self, interaction: discord.Interaction):
+        await interaction.response.send_message("抽到的角色是：" + rd.choice(jdata["valorants"]["agents"]))
 
 
 async def setup(bot):
