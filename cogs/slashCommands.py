@@ -3,6 +3,11 @@ from discord import app_commands
 from discord.ext import commands
 import discord
 import random as rd
+import json
+
+
+with open("config.json", "r", encoding="utf8") as jfile:
+    jdata = json.load(jfile)
 
 
 class slashCommands(Cog_Extension):
@@ -72,6 +77,14 @@ class slashCommands(Cog_Extension):
         # 封鎖成員
         await member.ban(reason=reason)
         await interaction.response.send_message(f"已經封鎖 {member.mention}。")
+
+    @discord.app_commands.command(name="特戰隨機地圖", description="特戰隨機地圖")
+    async def random_valorant_map(self, interaction: discord.Interaction):
+        await interaction.response.send_message("抽到的地圖是：" + rd.choice(jdata["valorants"]["maps"]))
+
+    @discord.app_commands.command(name="特戰隨機角色", description="特戰隨機角色")
+    async def random_valorant_agent(self, interaction: discord.Interaction):
+        await interaction.response.send_message("抽到的角色是：" + rd.choice(jdata["valorants"]["agents"]))
 
 
 async def setup(bot):

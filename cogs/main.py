@@ -26,14 +26,6 @@ class Main(Cog_Extension):
     async def hello(self, ctx):
         await ctx.send("Hello, world!")
 
-    @commands.command(name="特戰隨機地圖", description="特戰隨機地圖")
-    async def random_valorant_map(self, ctx):
-        await ctx.send("抽到的地圖是：" + rd.choice(jdata["valorants"]["maps"]))
-
-    @commands.command(name="特戰隨機角色", description="特戰隨機角色")
-    async def random_valorant_agent(self, ctx):
-        await ctx.send("抽到的角色是：" + rd.choice(jdata["valorants"]["agents"]))
-
     @commands.command(name="老師說", description="老師說")
     async def teacher_says(self, ctx):
         await ctx.message.delete()
@@ -53,7 +45,7 @@ class Main(Cog_Extension):
                 await member.move_to(channel1)
             else:
                 await member.move_to(channel2)
-    
+
     @commands.command(name="時間戳")
     async def timestamp(self, ctx):
         # 轉換成 UTC+8 的時間戳

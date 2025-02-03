@@ -3,7 +3,6 @@ import os
 import asyncio
 import random as rd
 import json
-from discord import app_commands
 from discord.ext import commands
 
 
@@ -19,15 +18,7 @@ with open("config.json", "r", encoding="utf8") as jfile:
 
 @bot.event
 async def on_ready():
-    # activity = discord.Activity(
-    #     type=discord.ActivityType.watching,
-    #     name="哈耿",
-    # )
-    activity = discord.Streaming(
-        name="哈耿台",
-        url="https://www.twitch.tv/ennaouii",
-    )
-    await bot.change_presence(activity=activity)
+    await bot.change_presence(activity=discord.Game(name="Discord"))
     slash = await bot.tree.sync()
     print(f'>>> "{bot.user}" is logged in! <<<')
     print(f">>> load {len(slash)} slash commands <<<")
