@@ -2,3 +2,9 @@
 *.env
 *.log
 *.json
+
+/drafts
+/earthquake_wakeup
+/venv
+*.bat
+test.py

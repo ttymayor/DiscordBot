@@ -1,16 +1,10 @@
 # Mayor Bot
 
-My Discord Bot with Python.
+My Discord Bot built on Python.
 
 ## 運行版本
 
-Python `3.12.4`
-
-| Package    | Version  |
-| ---------- | -------- |
-| discord.py | 2.4.0    |
-| requests   | 2.32.3   |
-| yt_dlp     | 2024.8.6 |
+Python `3.13.1`
 
 ## 使用方法
 
