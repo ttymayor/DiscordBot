@@ -201,3 +201,4 @@ pyrightconfig.json
 drafts/
 earthquake_wakeup/
 test.py
+cogs/earthquakeReport.py

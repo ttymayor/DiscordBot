@@ -2,13 +2,19 @@
 
 My Discord Bot built on Python.
 
-> [!CAUTION]
-> 目前音樂機器人在 Python `3.13.1` 之後不適用。
-> Currently the music robot does not work with Python `3.13.1` and later.
+## 公告
+
+> [!NOTE]
+> 目前 Python `3.13.2` 已重新修正為可以執行 music 的功能了，還有很抱歉一直在改 Python 版本 (x</br>
+> Python `3.13.2` has now been updated to support the music functionality again. Apologies for frequently changing the Python version (x
+
+> [!WARNING]
+> 由於無法及時解決單一機器人管理多個伺服器的問題，現在建議每個伺服器使用一個機器人。</br>
+> Unable to promptly address the issue of a single bot managing multiple servers, it is now recommended to use one bot per server.
 
 ## 運行版本
 
-Python `3.13.1`
+Python `3.13.2`
 
 ## 使用方法
 
@@ -35,7 +41,7 @@ Python `3.13.1`
   - `teacherSays` 我高中老師的語錄：）
 
 > [!NOTE]
-> ID 找不到？
+> ID 找不到？</br>
 > 請至【Discord 設定】 -> 側邊欄【進階】 -> 打開【開發者模式】</br>
 > 接著右鍵點擊語音或文字頻道，就可以看到【複製頻道 ID】
 
