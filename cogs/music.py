@@ -38,7 +38,6 @@ class Music(commands.Cog):
             "三小，不會讓我直接離開嗎？硬要讓等時間過了才讓我退出，還是你喜歡我？",
             "雖然捨不得，但我還是得走了",
         ]
-        self.ffmpeg_path = "C:\\Program Files\\FFMPEG\\bin\\ffmpeg.exe"
 
 
     async def start_leave_timer(self, interaction):
@@ -195,7 +194,6 @@ class Music(commands.Cog):
             print(f"正在嘗試播放：{title}")
             source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(
                 audio_url, 
-                executable=self.ffmpeg_path,
                 **FFMPEG_OPTIONS
             ))
             source.volume = 1.0
@@ -234,7 +232,6 @@ class Music(commands.Cog):
                 # 使用新的 URL 再次嘗試
                 source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(
                     self.playing_song[0],
-                    executable=self.ffmpeg_path,
                     **FFMPEG_OPTIONS
                 ))
                 source.volume = 1.0
