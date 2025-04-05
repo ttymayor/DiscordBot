@@ -1,0 +1,38 @@
+# Node modules (if applicable)
+node_modules
+
+# Python virtual environment
+.venv
+venv
+__pycache__/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.pid
+*.swp
+
+# Git files
+.git
+.gitignore
+
+# Docker-related files
+.dockerignore
+Dockerfile
+
+# IDE and editor settings
+*.idea/
+*.vscode/
+*.DS_Store
+
+# System files
+Thumbs.db
+
+# Backup files
+audio_debug.txt
+
+# draft files
+drafts/
+
+earthquake_wakeup/
+EEW.bat
