@@ -15,11 +15,12 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(script_dir)
 
 # Set up loggers
-bot_logger, client_logger = setup_logger(script_dir)
+bot_logger, client_logger, music_logger = setup_logger(script_dir)
 
 # Add logger to bot attributes
 commands.Bot.bot_logger = bot_logger
 commands.Bot.client_logger = client_logger
+commands.Bot.music_logger = music_logger
 
 intents = discord.Intents.all()
 intents.message_content = True
@@ -30,6 +31,7 @@ bot = commands.Bot(command_prefix="=", intents=intents)
 async def on_ready():
     await bot.change_presence(activity=discord.Game(name="Discord"))
     slash = await bot.tree.sync()
+    print(f">>> {bot.user} is logged in! <<<")
     bot_logger.info(f">>> {bot.user} is logged in! <<<")
     bot_logger.info(f">>> load {len(slash)} slash commands <<<")
 
