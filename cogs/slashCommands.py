@@ -1,6 +1,5 @@
 from core.classes import Cog_Extension
 from discord import app_commands
-from discord.ext import commands
 import discord
 import random as rd
 import json
