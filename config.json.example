@@ -4,9 +4,10 @@
     "adminID": "",
   },
   "guilds": {
+    "guildID": "",
     "welcomeChannelID": "",
     "leaveChannelID": "",
-    "dynamicChannelID": "",
+    "dynamicChannelCreatorID": "",
   },
   "valorants": {
     "attackerChannelID": "",
