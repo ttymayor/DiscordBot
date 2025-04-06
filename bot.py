@@ -1,20 +1,16 @@
 import discord
 import os
 import asyncio
-import random as rd
-import json
 from discord.ext import commands
+from dotenv import load_dotenv
 
+# Load environment variables from .env file
+load_dotenv()
 
 intents = discord.Intents.all()
 intents.message_content = True
 intents.members = True
 bot = commands.Bot(command_prefix="=", intents=intents)
-
-
-with open("config.json", "r", encoding="utf8") as jfile:
-    jdata = json.load(jfile)
-
 
 @bot.event
 async def on_ready():
@@ -52,7 +48,7 @@ async def load_extension():
 async def main():
     async with bot:
         await load_extension()
-        await bot.start(jdata["botToken"])
+        await bot.start(str(os.getenv("BOT_TOKEN")))
 
 
 if __name__ == "__main__":
