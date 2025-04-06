@@ -1,15 +1,12 @@
 {
-  "botToken": "YOUR BOT TOKEN",
   "CWA_API_KEY": "YOUR CWA API KEY",
   "roles": {
     "adminID": "",
-    "eqReportID": ""
   },
   "guilds": {
     "welcomeChannelID": "",
     "leaveChannelID": "",
     "dynamicChannelID": "",
-    "eqReportChannelID": ""
   },
   "valorants": {
     "attackerChannelID": "",
