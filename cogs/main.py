@@ -1,14 +1,11 @@
+from core.get_config import bot_settings
 from core.classes import Cog_Extension
 from discord.ext import commands
 from discord import app_commands
-import json
 import random as rd
 from datetime import datetime
 
-with open("config.json", "r", encoding="utf8") as jfile:
-    jdata = json.load(jfile)
-
-admin = int(jdata["roles"]["adminID"])
+admin = int(bot_settings["roles"]["adminID"])
 
 
 class Main(Cog_Extension):
@@ -28,7 +25,7 @@ class Main(Cog_Extension):
     @commands.command(name="老師說", description="老師說")
     async def teacher_says(self, ctx):
         await ctx.message.delete()
-        await ctx.send(rd.choice(jdata["teacherSays"]))
+        await ctx.send(rd.choice(bot_settings["teacherSays"]))
 
     @commands.command(name="分組")
     async def group(self, ctx):
@@ -36,8 +33,8 @@ class Main(Cog_Extension):
 
         rd.shuffle(members)
 
-        channel1 = ctx.guild.get_channel(int(jdata["valorants"]["attackerChannelID"]))
-        channel2 = ctx.guild.get_channel(int(jdata["valorants"]["defenderChannelID"]))
+        channel1 = ctx.guild.get_channel(int(bot_settings["valorants"]["attackerChannelID"]))
+        channel2 = ctx.guild.get_channel(int(bot_settings["valorants"]["defenderChannelID"]))
 
         for i, member in enumerate(members):
             if i % 2 == 0:

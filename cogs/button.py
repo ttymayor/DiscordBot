@@ -1,13 +1,9 @@
+from core.get_config import bot_settings
+from core.classes import Cog_Extension
 from discord.ext import commands
 from discord.ui import Button, View
-from core.classes import Cog_Extension
 import random as rd
 import discord
-import json
-
-with open("config.json", "r", encoding="utf8") as jfile:
-    jdata = json.load(jfile)
-
 
 class JoinParty(Button):
     def __init__(self, label: str, *args, **kwargs):
@@ -64,8 +60,8 @@ class EndParty(Button):
         defender = players[half:]
 
         # 假設你已經有兩個語音頻道的 ID
-        attacker_channel = int(jdata["valorants"]["attackerChannelID"])
-        defender_channel = int(jdata["valorants"]["defenderChannelID"])
+        attacker_channel = int(bot_settings["valorants"]["attackerChannelID"])
+        defender_channel = int(bot_settings["valorants"]["defenderChannelID"])
 
         guild = interaction.guild
         for index, user_id in enumerate(attacker):

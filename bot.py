@@ -3,9 +3,23 @@ import os
 import asyncio
 from discord.ext import commands
 from dotenv import load_dotenv
+from core.logger import setup_logger
+
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Get the directory where the script is located
+script_dir = os.path.dirname(os.path.abspath(__file__))
+# Set the working directory to the script directory
+os.chdir(script_dir)
+
+# Set up loggers
+bot_logger, client_logger = setup_logger(script_dir)
+
+# Add logger to bot attributes
+commands.Bot.bot_logger = bot_logger
+commands.Bot.client_logger = client_logger
 
 intents = discord.Intents.all()
 intents.message_content = True
@@ -16,8 +30,8 @@ bot = commands.Bot(command_prefix="=", intents=intents)
 async def on_ready():
     await bot.change_presence(activity=discord.Game(name="Discord"))
     slash = await bot.tree.sync()
-    print(f'>>> "{bot.user}" is logged in! <<<')
-    print(f">>> load {len(slash)} slash commands <<<")
+    bot_logger.info(f">>> {bot.user} is logged in! <<<")
+    bot_logger.info(f">>> load {len(slash)} slash commands <<<")
 
 
 @bot.command()
@@ -39,10 +53,11 @@ async def reload(ctx, extension):
 
 
 async def load_extension():
-    for filename in os.listdir("./cogs"):
+    cogs_dir = os.path.join(script_dir, "cogs")
+    for filename in os.listdir(cogs_dir):
         if filename.endswith(".py"):
             await bot.load_extension(f"cogs.{filename[:-3]}")
-            print(f">>> {filename[:-3]} is loaded! <<<")
+            bot_logger.info(f">>> {filename[:-3]} is loaded! <<<")
 
 
 async def main():

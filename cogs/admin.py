@@ -1,14 +1,10 @@
+from core.get_config import bot_settings
 from core.classes import Cog_Extension
 from discord.ext import commands
 from discord import app_commands
 import discord
-import json
 
-with open("config.json", "r", encoding="utf8") as jfile:
-    jdata = json.load(jfile)
-
-admin = int(jdata["roles"]["adminID"])
-
+admin = int(bot_settings["roles"]["adminID"])
 
 class Admin(Cog_Extension):
     # bot say
