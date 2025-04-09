@@ -20,7 +20,7 @@ YDL_OPTIONS = {
     "force_generic_extractor": False,
     "geo_bypass": True,  # 繞過地理限制
     "ignoreerrors": True,  # 忽略部分錯誤
-    "cookies": "cookies.txt",  # 使用 cookies 文件
+    # "cookies": "cookies.txt",  # 使用 cookies 文件
 }
 
 

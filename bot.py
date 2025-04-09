@@ -1,9 +1,10 @@
-import discord
-import os
-import asyncio
+from core.logger import setup_logger
 from discord.ext import commands
 from dotenv import load_dotenv
-from core.logger import setup_logger
+import asyncio
+import discord
+import os
+from database import init_db
 
 
 # Load environment variables from .env file
@@ -17,10 +18,14 @@ os.chdir(script_dir)
 # Set up loggers
 bot_logger, client_logger, music_logger = setup_logger(script_dir)
 
+# Initialize database
+db = init_db(script_dir, bot_logger)
+
 # Add logger to bot attributes
 commands.Bot.bot_logger = bot_logger
 commands.Bot.client_logger = client_logger
 commands.Bot.music_logger = music_logger
+commands.Bot.db = db
 
 intents = discord.Intents.all()
 intents.message_content = True
@@ -65,7 +70,10 @@ async def load_extension():
 async def main():
     async with bot:
         await load_extension()
-        await bot.start(str(os.getenv("BOT_TOKEN")))
+        try:
+            await bot.start(str(os.getenv("BOT_TOKEN")))
+        finally:
+            await db.close()
 
 
 if __name__ == "__main__":
