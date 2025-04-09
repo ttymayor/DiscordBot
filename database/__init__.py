@@ -53,6 +53,7 @@ class DatabaseManager:
             user_id TEXT PRIMARY KEY,
             username TEXT DEFAULT NULL,
             sign_in_count INTEGER DEFAULT 0,
+                            
             exp INTEGER DEFAULT 0,
             joined_at TEXT DEFAULT NULL
         )
@@ -97,6 +98,17 @@ class DatabaseManager:
             fortune TEXT,
             PRIMARY KEY(user_id, date),
             FOREIGN KEY(user_id) REFERENCES users(user_id)
+        )
+        ''')
+
+        # rock-paper-scissors table
+        self.cursor.execute('''
+        CREATE TABLE IF NOT EXISTS rps_record (
+            builder_id TEXT,
+            receiver_id TEXT,
+            date TEXT,
+            result TEXT,
+            FOREIGN KEY(builder_id) REFERENCES users(user_id)
         )
         ''')
 

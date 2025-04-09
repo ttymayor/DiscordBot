@@ -6,11 +6,12 @@ import discord
 import random as rd
 
 class moraButton(discord.ui.View):
-    def __init__(self, myself: discord.Member, competitor: discord.Member):
+    def __init__(self, myself: discord.Member, competitor: discord.Member, db):
         super().__init__(timeout=180)
         self.myself = myself
         self.competitor = competitor
         self.choices = {myself: None, competitor: None}
+        self.db = db
 
     @discord.ui.button(label="📄 Paper", style=discord.ButtonStyle.primary)
     async def paper(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -24,11 +25,25 @@ class moraButton(discord.ui.View):
     async def stone(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.handle_choice(interaction, "Stone", button)
 
+    @discord.ui.button(label="加分機制", style=discord.ButtonStyle.secondary)
+    async def add_exp(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_message("勝方 `+3 exp`，敗方 `+1 exp`，平手各 `+1 exp`", ephemeral=True)
+        return
+
     async def handle_choice(self, interaction: discord.Interaction, choice: str, button: discord.ui.Button):
         # Check if the user is one of the participants
         if interaction.user not in self.choices:
             await interaction.response.send_message("這不是你的按鈕！", ephemeral=True)
             return
+
+        # Check if the user has already made a choice
+        if self.choices[interaction.user] is not None:
+            await interaction.response.send_message("你已經選擇過了！", ephemeral=True)
+            return
+
+        # Disable all buttons after a choice is made
+        for child in self.children:
+            child.disabled = True
 
         # Record the user's choice
         self.choices[interaction.user] = choice
@@ -40,12 +55,9 @@ class moraButton(discord.ui.View):
                 self._result_sent = True
                 result = self.determine_winner()
                 await interaction.followup.send(result)
-                # Disable all buttons after the game is over
-                for button in self.children:
-                    button.disabled = True
                 self.stop()
         else:
-            await interaction.followup.send(f"{interaction.user.mention} 已選擇，等待 {self.competitor.mention} 選擇...", ephemeral=True)
+            await interaction.response.send_message("等待對手選擇...", ephemeral=True)
 
     def determine_winner(self):
         # Extract choices
@@ -54,13 +66,55 @@ class moraButton(discord.ui.View):
 
         # Determine the result
         if choice1 == choice2:
+            self.update_exp(self.myself, 1)
+            self.update_exp(self.competitor, 1)
+            self.record_result(self.myself, self.competitor, "draw")
             return f"平手！雙方都選擇了 {choice1}！"
         elif (choice1 == "Paper" and choice2 == "Stone") or \
              (choice1 == "Scissors" and choice2 == "Paper") or \
              (choice1 == "Stone" and choice2 == "Scissors"):
-            return f"{self.myself.mention} 獲勝！{choice1} 打敗了 {choice2}！"
+            self.update_exp(self.myself, 3)
+            self.update_exp(self.competitor, 1)
+            self.record_result(self.myself, self.competitor, "win")
+            return f"{self.myself.mention}: {choice1} 打敗了 {self.competitor.mention}: {choice2}"
         else:
+            self.update_exp(self.competitor, 3)
+            self.update_exp(self.myself, 1)
+            self.record_result(self.myself, self.competitor, "lose")
             return f"{self.competitor.mention} 獲勝！{choice2} 打敗了 {choice1}！"
+
+    def update_exp(self, user, exp):
+        try:
+            # 確保使用者存在於 users 表
+            self.db.cursor.execute('SELECT 1 FROM users WHERE user_id = ?', (user.id,))
+            if not self.db.cursor.fetchone():
+                self.db.cursor.execute('INSERT INTO users (user_id, username) VALUES (?, ?)', (user.id, user.name))
+                self.db.conn.commit()
+            # 更新經驗值
+            self.db.cursor.execute('UPDATE users SET exp = exp + ? WHERE user_id = ?', (exp, str(user.id)))
+            self.db.conn.commit()
+        except Exception as e:
+            print(f"Failed to update exp for user {user.id}: {e}")
+    def record_result(self, winner, loser, result):
+        try:
+            # 確保贏家存在於 users 表
+            self.db.cursor.execute('SELECT 1 FROM users WHERE user_id = ?', (winner.id,))
+            if not self.db.cursor.fetchone():
+                self.db.cursor.execute('INSERT INTO users (user_id, username) VALUES (?, ?)', (winner.id, winner.name))
+                self.db.conn.commit()
+
+            # 確保輸家存在於 users 表
+            self.db.cursor.execute('SELECT 1 FROM users WHERE user_id = ?', (loser.id,))
+            if not self.db.cursor.fetchone():
+                self.db.cursor.execute('INSERT INTO users (user_id, username) VALUES (?, ?)', (loser.id, loser.name))
+                self.db.conn.commit()
+
+            # 紀錄結果
+            self.db.cursor.execute('INSERT INTO rps_record (builder_id, receiver_id, date, result) VALUES (?, ?, ?, ?)',
+                                    (str(winner.id), str(loser.id), datetime.now(), result))
+            self.db.conn.commit()
+        except Exception as e:
+            print(f"Failed to record result: {e}")
 
 class slashCommands(Cog_Extension):
     def __init__(self, bot):
@@ -249,7 +303,7 @@ class slashCommands(Cog_Extension):
                 "exp": user_data[3]
             }
             print(user_info)
-            await interaction.response.send_message(f"使用者資訊：\nuser_id: {user_info['user_id']}\nusername: {user_info['username']}\n簽到次數: {user_info['sign_in_count']}\n經驗值: {user_info['exp']}")
+            await interaction.response.send_message(f"使用者資訊：\n使用者名稱: {user_info['username']}\n簽到次數: {user_info['sign_in_count']}\n經驗值: {user_info['exp']}")
             self.client_logger.info(f"[指令使用者資訊] 使用者 {username} ({user_id}) 取得使用者資訊：{user_info}")
         except Exception as e:
             await interaction.response.send_message(f"取得使用者資訊失敗：請告知 bot 管理者", ephemeral=True)
@@ -259,7 +313,7 @@ class slashCommands(Cog_Extension):
     @app_commands.command(name="猜拳", description="猜拳")
     @app_commands.describe(competitor="The competitor to play with")
     async def mora(self, interaction: discord.Interaction, competitor: discord.Member):
-        view = moraButton(myself=interaction.user, competitor=competitor)
+        view = moraButton(myself=interaction.user, competitor=competitor, db=self.db)
         await interaction.response.send_message(f"{interaction.user.mention} 與 {competitor.mention} 開始猜拳！", view=view)
 
 async def setup(bot):
