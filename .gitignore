@@ -203,3 +203,4 @@ earthquake_wakeup/
 test.py
 cogs/earthquakeReport.py
 audio_debug.txt
+*.db
