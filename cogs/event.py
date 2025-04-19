@@ -128,6 +128,14 @@ class Event(Cog_Extension):
             last_used[user_id] = now
 
         # 訊息偵測
+        if msg.content.startswith("https://www.instagram.com"):
+            # 刪除訊息
+            await msg.delete()
+            # 修改 URL 並傳送修改後的 IG URL
+            modified_url = msg.content.replace("https://www.instagram.com", "https://www.instagramez.com")
+            await msg.channel.send(f"<@{msg.author.id}> 分享了一則 IG 貼文（我已修改為有預覽圖的網址）\n{modified_url}")
+            return
+
         ## 如果不是連結
         if "http" not in msg.content:
             message = msg.content.lower()
@@ -139,6 +147,10 @@ class Event(Cog_Extension):
                 await msg.channel.send(message)
             elif message == "6":
                 await msg.channel.send("6")
+            elif message == "嘻嘻":
+                await msg.channel.send("不嘻嘻")
+            elif message == "不嘻嘻":
+                await msg.channel.send("嘻嘻")
             elif message == "qq":
                 await msg.channel.send("幫 QQ")
             elif message == "tt":
