@@ -25,14 +25,14 @@ Python `3.13.2`
   ```
 
 - 配置 config.json
-  - `botToken` 你的機器人 Token
-  - `CWA_API_KEY` 你的中央氣象署 API_KEY
+  - `botID` 你的機器人 ID
   - `roles` 身分組頻道設定
     - `adminID` 管理員身分組 ID
   - `guilds` 伺服器頻道設定
+    - `guildID` 伺服器 ID
     - `welcomeChannelID` 歡迎頻道 ID
     - `leaveChannelID` 離開頻道 ID
-    - `dynamicChannelID` 動態語音頻道 ID
+    - `dynamicChannelCreatorID` 動態語音頻道 ID
   - `valorants` 有關 Valorant 的設定
     - `attackerChannelID` 進攻方語音頻道 ID
     - `defenderChannelID` 守備方語音頻道 ID
