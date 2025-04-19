@@ -73,7 +73,7 @@ async def main():
         try:
             await bot.start(str(os.getenv("BOT_TOKEN")))
         finally:
-            await db.close()
+            db.close()
 
 
 if __name__ == "__main__":

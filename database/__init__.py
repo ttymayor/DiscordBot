@@ -53,30 +53,7 @@ class DatabaseManager:
             user_id TEXT PRIMARY KEY,
             username TEXT DEFAULT NULL,
             sign_in_count INTEGER DEFAULT 0,
-                            
-            exp INTEGER DEFAULT 0,
-            joined_at TEXT DEFAULT NULL
-        )
-        ''')
-        
-        # Command logs table
-        self.cursor.execute('''
-        CREATE TABLE IF NOT EXISTS command_logs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id TEXT,
-            command TEXT,
-            timestamp TEXT
-        )
-        ''')
-        
-        # Server settings table
-        self.cursor.execute('''
-        CREATE TABLE IF NOT EXISTS server_settings (
-            guild_id TEXT PRIMARY KEY,
-            welcome_channel_id TEXT,
-            leave_channel_id TEXT,
-            dynamic_channel_id TEXT,
-            prefix TEXT DEFAULT "="
+            exp INTEGER DEFAULT 0
         )
         ''')
         
@@ -109,9 +86,9 @@ class DatabaseManager:
             date TEXT,
             result TEXT,
             FOREIGN KEY(builder_id) REFERENCES users(user_id)
+            FOREIGN KEY(receiver_id) REFERENCES users(user_id)
         )
         ''')
-
 
         self.conn.commit()
         if self.logger:
@@ -125,29 +102,59 @@ class DatabaseManager:
                 self.logger.info("Database connection closed")
     
     # Helper methods for common operations
-    def get_user(self, user_id):
+    def get_user(self, user_id) -> tuple:
         """Get user data from database"""
         self.cursor.execute('SELECT * FROM users WHERE user_id = ?', (str(user_id),))
         return self.cursor.fetchone()
-    
-    def ensure_user_exists(self, user_id, username):
-        """Ensure user exists in database"""
+
+    def get_all_users(self) -> list:
+        """Get all users from database"""
+        self.cursor.execute('SELECT * FROM users')
+        return self.cursor.fetchall()
+
+    def ensure_user_exists(self, user_id, username) -> bool:
+        """
+        Ensure user exists in database.
+        
+        Args:
+            user_id: The user's Discord ID
+            username: The user's Discord username
+            
+        Returns:
+            bool: True if a new user was created, False if the user already existed
+        """
         if not self.get_user(user_id):
             self.cursor.execute(
-                'INSERT INTO users (user_id, username, joined_at) VALUES (?, ?, ?)',
-                (str(user_id), username, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+                'INSERT INTO users (user_id, username) VALUES (?, ?)',
+                (str(user_id), username)
             )
             self.conn.commit()
             return True
         return False
     
-    def log_command(self, user_id, command):
-        """Log command usage"""
+    def update_user(self, user_id, username):
+        """Update user data in database"""
         self.cursor.execute(
-            'INSERT INTO command_logs (user_id, command, timestamp) VALUES (?, ?, ?)',
-            (str(user_id), command, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+            'UPDATE users SET username = ? WHERE user_id = ?',
+            (username, str(user_id))
         )
         self.conn.commit()
+
+    def update_exp(self, user_id, exp):
+        """Update user's experience points"""
+        self.ensure_user_exists(user_id, None)  # Ensure user exists
+        self.cursor.execute(
+            'UPDATE users SET exp = exp + ? WHERE user_id = ?',
+            (exp, str(user_id))
+        )
+        self.conn.commit()
+
+    def get_all_fortune(self, user_id) -> list:
+        """Get fortune analysis for a user"""
+        self.cursor.execute('SELECT * FROM fortune_record WHERE user_id = ?', (str(user_id),))
+        return self.cursor.fetchall()
+
+
 
 # Global instance for easy access from other modules
 db_manager = None
