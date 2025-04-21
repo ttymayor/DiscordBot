@@ -64,6 +64,8 @@ class Event(Cog_Extension):
                 return
 
             if after.channel is not None:
+                # send message to channel
+                await after.channel.send(f"<@{member.id}> 進來啦！", tts=True)
                 self.client_logger.info(f"[語音事件] @{member} 移動從 \"{before.channel}\" 到 \"{after.channel}\"")
 
             await before.channel.delete()
@@ -88,11 +90,13 @@ class Event(Cog_Extension):
             self.client_logger.info(f"[語音事件] \"{channelCreator}\" 創建頻道: \"{new_channel.name}\"")
             # 將使用者移動到新創建的語音頻道
             await member.move_to(new_channel)
+            await channelCreator.send(f"<@{member.id}> 進來啦！", tts=True)
             self.dynamic_channel_ids.append(new_channel.id)
             self.client_logger.info(f"[語音事件] \"{channelCreator}\" 將 @{member} 移到自己的頻道: \"{new_channel.name}\"")
             return
 
         if before.channel is None and after.channel is not None:
+            await after.channel.send(f"<@{member.id}> 進來啦！", tts=True)
             self.client_logger.info(f"[語音事件] @{member} 加入 \"{after.channel}\"")
         elif before.channel is not None and after.channel is None:
             self.client_logger.info(f"[語音事件] @{member} 離開 \"{before.channel}\"")
@@ -101,6 +105,7 @@ class Event(Cog_Extension):
                 or before.channel.id == self.channel_creator
                 or after.channel.id in self.dynamic_channel_ids):
                 return
+            await after.channel.send(f"<@{member.id}> 進來啦！", tts=True)
             self.client_logger.info(f"[語音事件] @{member} 移動從 \"{before.channel}\" 到 \"{after.channel}\"")
 
     # QQ TT
