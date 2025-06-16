@@ -1,0 +1,11 @@
+[project]
+name = "discordbot-uv"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "asyncio>=3.4.3",
+    "dotenv>=0.9.9",
+    "hikari-lightbulb>=3.0.1",
+]
