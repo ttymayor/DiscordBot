@@ -21,6 +21,7 @@ async def on_starting(_: hikari.StartingEvent) -> None:
     await client.load_extensions(
         "extensions.ping",
         "extensions.autoComplete",
+        "extensions.rock_paper_scissors",
     )
     # Start the bot - make sure commands are synced properly
     await client.start()
