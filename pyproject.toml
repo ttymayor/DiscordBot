@@ -8,4 +8,7 @@ dependencies = [
     "asyncio>=3.4.3",
     "dotenv>=0.9.9",
     "hikari-lightbulb>=3.0.1",
+    "pillow>=11.2.1",
+    "requests>=2.32.4",
+    "sqlalchemy>=2.0.41",
 ]
